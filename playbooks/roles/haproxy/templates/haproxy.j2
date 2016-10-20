@@ -1,0 +1,60 @@
+# {{ ansible_managed }}
+#
+frontend {{ item.0.role }}-{{ item.1.name }}-front
+bind *:{{ item.1.host }}
+{% if item.1.name == 'http' %}
+    mode http
+    option httplog
+    option forwardfor except 127.0.0.0/8
+    option http-server-close
+{% elif item.1.name == 'https' %}
+    mode tcp
+    timeout client 60m
+    option  tcplog
+{% else %}
+    mode tcp
+    timeout client 60m
+    option  tcplog
+{% endif %}
+    default_backend {{ item.0.name }}-{{ item.1.name }}-back
+  
+backend {{ item.0.name }}-{{ item.1.name }}-back
+{% if item.1.name == 'http' %}
+    mode http
+    option forwardfor
+    option httpchk
+    option httplog
+{% elif item.1.name == 'https' %}
+    mode tcp
+    option ssl-hello-chk
+    timeout server 60m
+{% elif item.1.name == 'mysql' %}
+    mode tcp
+    timeout server 60m
+    option mysql-check user monitoring
+{% else %}
+    mode tcp
+    timeout server 60m
+{% endif %}
+{% if item.0.role in [ 'logstash' ] %}
+    balance leastconn
+{% endif %}
+{% if item.0.role in [ 'elasticsearch', 'kibana' ] %}
+    balance source
+{% endif %}
+{% set first = true %}
+{% for server in opsmgr_containers %}
+{% if server.role == item.0.role %}
+{% if first %}
+    server {{ server.hostname }} {{ server.address }}:{{ item.1.container }} check port {{ item.1.container }} inter 10s fall 1 rise 1
+{% set first = false %}
+{% else %}
+{% if server.role in [ 'logstash', 'elasticsearch', 'kibana' ] %}
+    server {{ server.hostname }} {{ server.address }}:{{ item.1.container }} check port {{ item.1.container }} inter 10s fall 1 rise 1
+{% else %}
+    server {{ server.hostname }} {{ server.address }}:{{ item.1.container }} check backup
+{% endif %}
+{% endif %}
+{% endif %}
+{% endfor %}
+

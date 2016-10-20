@@ -1,0 +1,56 @@
+---
+# Copyright 2016, IBM US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+nagios_download_site: https://assets.nagios.com/downloads/nagioscore/releases
+nagios_download_file: nagios-4.1.1.tar.gz
+plugin_download_site: http://nagios-plugins.org/download
+plugin_download_file: nagios-plugins-2.1.1.tar.gz
+temp_dir: /tmp
+
+nagios_group: nagios
+nagios_user:  nagios
+nagios_pass:  nagios
+
+nrpe_packages:
+  - nagios-nrpe-plugin
+
+apt_packages:
+  - apache2
+  - apache2-utils
+  - build-essential
+  - libapache2-mod-php5
+  - libffi-dev
+  - libgd2-xpm-dev
+  - libssl-dev
+  - php5-gd
+  - lxc-dev
+  - python-dev
+  - python-pip
+  - python3-pip
+  - sendmail
+  - snmp
+  - unzip
+  - wget
+
+#Using specific paramiko version until bug is fixed:
+#https://github.com/paramiko/paramiko/issues/750
+pip_packages:
+  - lxc-python2
+  - paramiko==1.17.1
+  - pyCrypto
+
+pip3_packages:
+  - paramiko==1.17.1
+
